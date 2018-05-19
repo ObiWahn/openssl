@@ -3,13 +3,14 @@
 ##
 ## {- join("\n## ", @autowarntext) -}
 {-
+ our $lib_suffix = $target{lib_suffix} || "";
  our $objext = $target{obj_extension} || ".obj";
  our $depext = $target{dep_extension} || ".d";
  our $exeext = $target{exe_extension} || ".exe";
- our $libext = $target{lib_extension} || ".lib";
- our $shlibext = $target{shared_extension} || ".dll";
- our $shlibextimport = $target{shared_import_extension} || ".lib";
- our $dsoext = $target{dso_extension} || ".dll";
+ our $libext = $lib_suffix . ($target{lib_extension} || ".lib");
+ our $shlibext = $lib_suffix . ($target{shared_extension} || ".dll");
+ our $shlibextimport = $lib_suffix . ($target{shared_import_extension} || ".lib");
+ our $dsoext = $lib_suffix . ($target{dso_extension} || ".dll");
 
  our $sover = $config{shlib_major}."_".$config{shlib_minor};
 
@@ -69,11 +70,11 @@ SHLIB_VERSION_NUMBER={- $config{shlib_version_number} -}
 
 LIBS={- join(" ", map { $_.$libext } @{$unified_info{libraries}}) -}
 SHLIBS={- join(" ", map { shlib($_) } @{$unified_info{libraries}}) -}
-SHLIBPDBS={- join(" ", map { local $shlibext = ".pdb"; shlib($_) } @{$unified_info{libraries}}) -}
+SHLIBPDBS={- join(" ", map { local $shlibext = $lib_suffix.".pdb"; shlib($_) } @{$unified_info{libraries}}) -}
 ENGINES={- join(" ", map { dso($_) } @{$unified_info{engines}}) -}
-ENGINEPDBS={- join(" ", map { local $dsoext = ".pdb"; dso($_) } @{$unified_info{engines}}) -}
+ENGINEPDBS={- join(" ", map { local $dsoext = $lib_suffix.".pdb"; dso($_) } @{$unified_info{engines}}) -}
 PROGRAMS={- our @PROGRAMS = map { $_.$exeext } @{$unified_info{programs}}; join(" ", @PROGRAMS) -}
-PROGRAMPDBS={- join(" ", map { $_.".pdb" } @{$unified_info{programs}}) -}
+PROGRAMPDBS={- join(" ", map { $_.$lib_suffix.".pdb" } @{$unified_info{programs}}) -}
 SCRIPTS={- join(" ", @{$unified_info{scripts}}) -}
 {- output_off() if $disabled{makedepend}; "" -}
 DEPS={- join(" ", map { (my $x = $_) =~ s|\.o$|$depext|; $x; }
@@ -90,9 +91,9 @@ GENERATED={- join(" ",
 
 INSTALL_LIBS={- join(" ", map { $_.$libext } @{$unified_info{install}->{libraries}}) -}
 INSTALL_SHLIBS={- join(" ", map { shlib($_) } @{$unified_info{install}->{libraries}}) -}
-INSTALL_SHLIBPDBS={- join(" ", map { local $shlibext = ".pdb"; shlib($_) } @{$unified_info{install}->{libraries}}) -}
+INSTALL_SHLIBPDBS={- join(" ", map { local $shlibext = $lib_suffix.".pdb"; shlib($_) } @{$unified_info{install}->{libraries}}) -}
 INSTALL_ENGINES={- join(" ", map { dso($_) } @{$unified_info{install}->{engines}}) -}
-INSTALL_ENGINEPDBS={- join(" ", map { local $dsoext = ".pdb"; dso($_) } @{$unified_info{install}->{engines}}) -}
+INSTALL_ENGINEPDBS={- join(" ", map { local $dsoext = $lib_suffix.".pdb"; dso($_) } @{$unified_info{install}->{engines}}) -}
 INSTALL_PROGRAMS={- join(" ", map { $_.$exeext } grep { !m|^test\\| } @{$unified_info{install}->{programs}}) -}
 INSTALL_PROGRAMPDBS={- join(" ", map { $_.".pdb" } grep { !m|^test\\| } @{$unified_info{install}->{programs}}) -}
 {- output_off() if $disabled{apps}; "" -}
